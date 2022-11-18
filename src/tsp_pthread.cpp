@@ -155,28 +155,27 @@ void Genetic_thread::insertBinarySearch(vector<int> &child, int total_cost) {
 }
 
 /*
-                                Makes the crossover
-                                This crossover selects two random points
-                                These points generates substrings in both
-   parents The substring inverted of parent1 is placed in parent2 and the
-   substring inverted of parent2 is placed in parent1
+        Makes the crossover
+        This crossover selects two random points
+        These points generates substrings in both parents
+        The substring inverted of parent1 is placed in parent2 and
+        the substring inverted of parent2 is placed in parent1
 
-                                Example:
-                                                                parent1: 1 2 3 4
-   5 parent2: 1 2 4 5 3
+        Example:
+                parent1: 1 2 3 4 5
+                parent2: 1 2 4 5 3
 
-                                                                substring in
-   parent1: 2 3 4 substring in parent2: 2 4 5
+                substring in parent1: 2 3 4
+                substring in parent2: 2 4 5
 
-                                                                substring
-   inverted in parent1: 4 3 2 substring inverted in parent2: 5 4 2
+                substring inverted in parent1: 4 3 2
+                substring inverted in parent2: 5 4 2
 
-                                                                child1: 1 5 4 2
-   5 child2: 1 4 3 2 3
+                child1: 1 5 4 2 5
+                child2: 1 4 3 2 3
 
-                                                                Children are
-   invalids: 5 appears 2x in child1 and 3 appears 2x in child2 Solution: map of
-   genes that checks if genes are not used
+                Children are invalids: 5 appears 2x in child1 and 3 appears 2x
+   in child2 Solution: map of genes that checks if genes are not used
 */
 void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
   vector<int> child1, child2;
@@ -384,35 +383,11 @@ void Genetic_thread::single_run(void) {
       // applying crossover in the two parents
       crossOver(population[parent1].first, population[parent2].first);
     }
+  } else {
+	// population contains only 1 parent
 
-    // // gets difference to check if the population grew
-    // int diff_population = real_size_population - old_size_population;
-
-    // if (diff_population == 2) {
-    // 	if (real_size_population > size_population) {
-    // 		// removes the two worst parents of the population
-    // 		population.pop_back();
-    // 		population.pop_back();
-
-    // 		// decrements the real_size_population in 2 units
-    // 		__sync_fetch_and_add(&real_size_population, -2);
-    // 	}
-    // } else if (diff_population == 1) {
-    // 	if (real_size_population > size_population) {
-    // 		population.pop_back();	// removes the worst parent of the
-    // population
-    // 		__sync_fetch_and_add(&real_size_population, -1);
-    // 	}
-    // }
-  } else // population contains only 1 parent
-  {
-    // // applying crossover in the parent
+    // applying crossover in the parent
     crossOver(population[0].first, population[0].first);
-
-    // if (real_size_population > size_population) {
-    // 	population.pop_back();	// removes the worst parent of the population
-    // 	__sync_fetch_and_add(&real_size_population, -1);
-    // }
   }
   return;
 }

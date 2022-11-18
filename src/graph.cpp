@@ -46,18 +46,6 @@ void Graph::generatesGraph() {
 
   // add others edges randomly
 
-  // int limit_edges = V * (V - 1) / 2; // calculates the limit of edges
-  // int size_edges = limit_edges - rand() % (V / 10);
-  //
-  // for (int i = 0; i < size_edges; i++) {
-  //   int src = rand() % V;    // random source
-  //   int dest = rand() % V;   // random destination
-  //   weight = rand() % V + 1; // random weight in range [1,V]
-  //   if (src != dest) {
-  //     addEdge(vec[src], vec[dest], weight);
-  //     addEdge(vec[dest], vec[src], weight);
-  //   }
-  // }
   int maxWeight = V * 2;
   for (int i = 0; i < V; ++i) {
     for (int j = i + 1; j < V; ++j) {

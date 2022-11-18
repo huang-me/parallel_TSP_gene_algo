@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   Genetic_thread genetic2(g, 10, 10000, 5, thread_num, false);
 
   clock_gettime(CLOCK_MONOTONIC, &start);
-  genetic2.run(); // runs the genetic algorithm
+  genetic2.run();
   clock_gettime(CLOCK_MONOTONIC, &finish);
   cout << "\n\nTime for running the genetic algorithm with "
 			 << thread_num << " threads: "
