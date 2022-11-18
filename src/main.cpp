@@ -1,8 +1,10 @@
-#include <iostream>
+#include <pthread.h>
+#include <time.h>
 #include <unistd.h>
 
-#include "tsp.h"
 #include "graph.h"
+#include "tsp.h"
+#include "tsp_pthread.h"
 
 using namespace std;
 
@@ -29,22 +31,29 @@ int main(int argc, char **argv) {
   Graph *g = new Graph(num, 0, true);
   // g->showInfoGraph();
 
+  struct timespec start, finish;
+
   // parameters: the graph, population size, generations and mutation rate
   // optional parameters: show_population
-  Genetic genetic(g, 10, 1000, 5, false);
+  Genetic genetic(g, 10, 10000, 5, false);
 
-  clock_t begin_time = clock(); // gets time
-  genetic.run();                // runs the genetic algorithm
-  cout << "\n\nTime for to run the genetic algorithm: "
-       << float(clock() - begin_time) / CLOCKS_PER_SEC
-       << " seconds."; // shows time in seconds
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  genetic.run(); // runs the genetic algorithm
+  clock_gettime(CLOCK_MONOTONIC, &finish);
+  cout << "\n\nTime for running the single threaded genetic algorithm: "
+       << (finish.tv_sec - start.tv_sec) +
+              float(finish.tv_nsec - start.tv_nsec) / 1e9
+       << " seconds.\n"; // shows time in seconds
 
-  Genetic genetic2(g, 10, 10000, 5, false);
+  Genetic_thread genetic2(g, 10, 10000, 5, thread_num, false);
 
-  begin_time = clock(); // gets time
-  genetic2.run();       // runs the genetic algorithm
-  cout << "\n\nTime for to run the genetic algorithm: "
-       << float(clock() - begin_time) / CLOCKS_PER_SEC
+  clock_gettime(CLOCK_MONOTONIC, &start);
+  genetic2.run(); // runs the genetic algorithm
+  clock_gettime(CLOCK_MONOTONIC, &finish);
+  cout << "\n\nTime for running the genetic algorithm with "
+			 << thread_num << " threads: "
+       << (finish.tv_sec - start.tv_sec) +
+              float(finish.tv_nsec - start.tv_nsec) / 1e9
        << " seconds."; // shows time in seconds
 
   return 0;

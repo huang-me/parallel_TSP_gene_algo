@@ -6,7 +6,7 @@ Graph::Graph(int V, int initial_vertex,
              bool random_graph) // constructor of Graph
 {
   if (V < 1) {
-	// checks if number of vertexes is less than 1
+    // checks if number of vertexes is less than 1
     cout << "Error: number of vertexes <= 0\n";
     exit(1);
   }
@@ -44,17 +44,28 @@ void Graph::generatesGraph() {
     }
   }
 
-  int limit_edges = V * (V - 1); // calculates the limit of edges
-  int size_edges = rand() % (2 * limit_edges) + limit_edges;
-
   // add others edges randomly
-  for (int i = 0; i < size_edges; i++) {
-    int src = rand() % V;    // random source
-    int dest = rand() % V;   // random destination
-    weight = rand() % V + 1; // random weight in range [1,V]
-    if (src != dest) {
-      addEdge(vec[src], vec[dest], weight);
-      addEdge(vec[dest], vec[src], weight);
+
+  // int limit_edges = V * (V - 1) / 2; // calculates the limit of edges
+  // int size_edges = limit_edges - rand() % (V / 10);
+  //
+  // for (int i = 0; i < size_edges; i++) {
+  //   int src = rand() % V;    // random source
+  //   int dest = rand() % V;   // random destination
+  //   weight = rand() % V + 1; // random weight in range [1,V]
+  //   if (src != dest) {
+  //     addEdge(vec[src], vec[dest], weight);
+  //     addEdge(vec[dest], vec[src], weight);
+  //   }
+  // }
+  int maxWeight = V * 2;
+  for (int i = 0; i < V; ++i) {
+    for (int j = i + 1; j < V; ++j) {
+      if (rand() % 30 == 0)
+        continue;
+      int weight = rand() % maxWeight + 1;
+      addEdge(vec[i], vec[j], weight);
+      addEdge(vec[j], vec[i], weight);
     }
   }
 }
@@ -86,4 +97,3 @@ int Graph::existsEdge(int src, int dest) // checks if exists a edge
     return it->second; // returns cost
   return -1;
 }
-

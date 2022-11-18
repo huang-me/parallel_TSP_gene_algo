@@ -1,10 +1,11 @@
-#include "tsp.h"
+#include "tsp_pthread.h"
 
 using namespace std;
 
 // constructor of Genetic
-Genetic::Genetic(Graph *graph, int size_population, int generations,
-                 int mutation_rate, bool show_population) {
+Genetic_thread::Genetic_thread(Graph *g, int size_population, int generations,
+                               int mutation_rate, int thread_num,
+                               bool show_population) {
   if (size_population < 1) // checks if size of population is less than 1
   {
     cout << "Error: size_population < 1\n";
@@ -15,16 +16,17 @@ Genetic::Genetic(Graph *graph, int size_population, int generations,
     cout << "Error: mutation_rate must be >= 0 and <= 100\n";
     exit(1);
   }
-  this->graph = graph;
+  this->graph = g;
   this->size_population = size_population;
   this->real_size_population = 0;
   this->generations = generations;
   this->mutation_rate = mutation_rate;
   this->show_population = show_population;
+  this->thread_cnt = thread_num;
 }
 
 // checks if is a valid solution, then return total cost of path else return -1
-int Genetic::isValidSolution(vector<int> &solution) {
+int Genetic_thread::isValidSolution(vector<int> &solution) {
   int total_cost = 0;
   set<int> set_solution;
 
@@ -59,7 +61,7 @@ int Genetic::isValidSolution(vector<int> &solution) {
   return total_cost;
 }
 
-bool Genetic::existsChromosome(const vector<int> &v) {
+bool Genetic_thread::existsChromosome(const vector<int> &v) {
   // checks if exists in the population
   for (vector<pair<vector<int>, int>>::iterator it = population.begin();
        it != population.end(); ++it) {
@@ -70,7 +72,7 @@ bool Genetic::existsChromosome(const vector<int> &v) {
   return false;
 }
 
-void Genetic::initialPopulation() // generates the initial population
+void Genetic_thread::initialPopulation() // generates the initial population
 {
   vector<int> parent;
 
@@ -116,7 +118,7 @@ void Genetic::initialPopulation() // generates the initial population
     sort(population.begin(), population.end(), sort_pred()); // sort population
 }
 
-void Genetic::showPopulation() {
+void Genetic_thread::showPopulation() {
   cout << "\nShowing solutions...\n\n";
   for (vector<pair<vector<int>, int>>::iterator it = population.begin();
        it != population.end(); ++it) {
@@ -131,7 +133,7 @@ void Genetic::showPopulation() {
 }
 
 // inserts in the vector using binary search
-void Genetic::insertBinarySearch(vector<int> &child, int total_cost) {
+void Genetic_thread::insertBinarySearch(vector<int> &child, int total_cost) {
   int imin = 0;
   int imax = real_size_population - 1;
 
@@ -141,6 +143,7 @@ void Genetic::insertBinarySearch(vector<int> &child, int total_cost) {
     if (total_cost == population[imid].second) {
       population.insert(population.begin() + imid,
                         make_pair(child, total_cost));
+      real_size_population++;
       return;
     } else if (total_cost > population[imid].second)
       imin = imid + 1;
@@ -148,32 +151,34 @@ void Genetic::insertBinarySearch(vector<int> &child, int total_cost) {
       imax = imid - 1;
   }
   population.insert(population.begin() + imin, make_pair(child, total_cost));
+  real_size_population++;
 }
 
 /*
-        Makes the crossover
-        This crossover selects two random points
-        These points generates substrings in both parents
-        The substring inverted of parent1 is placed in parent2 and
-        the substring inverted of parent2 is placed in parent1
+                                Makes the crossover
+                                This crossover selects two random points
+                                These points generates substrings in both
+   parents The substring inverted of parent1 is placed in parent2 and the
+   substring inverted of parent2 is placed in parent1
 
-        Example:
-                parent1: 1 2 3 4 5
-                parent2: 1 2 4 5 3
+                                Example:
+                                                                parent1: 1 2 3 4
+   5 parent2: 1 2 4 5 3
 
-                substring in parent1: 2 3 4
-                substring in parent2: 2 4 5
+                                                                substring in
+   parent1: 2 3 4 substring in parent2: 2 4 5
 
-                substring inverted in parent1: 4 3 2
-                substring inverted in parent2: 5 4 2
+                                                                substring
+   inverted in parent1: 4 3 2 substring inverted in parent2: 5 4 2
 
-                child1: 1 5 4 2 5
-                child2: 1 4 3 2 3
+                                                                child1: 1 5 4 2
+   5 child2: 1 4 3 2 3
 
-                Children are invalids: 5 appears 2x in child1 and 3 appears 2x
-   in child2 Solution: map of genes that checks if genes are not used
+                                                                Children are
+   invalids: 5 appears 2x in child1 and 3 appears 2x in child2 Solution: map of
+   genes that checks if genes are not used
 */
-void Genetic::crossOver(vector<int> &parent1, vector<int> &parent2) {
+void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
   vector<int> child1, child2;
 
   // map of genes, checks if already are selected
@@ -294,84 +299,41 @@ void Genetic::crossOver(vector<int> &parent1, vector<int> &parent2) {
   int total_cost_child1 = isValidSolution(child1);
   int total_cost_child2 = isValidSolution(child2);
 
+  m.lock();
   // checks if is a valid solution and not exists in the population
   if (total_cost_child1 != -1 && !existsChromosome(child1)) {
     // add child in the population
     insertBinarySearch(child1,
                        total_cost_child1); // uses binary search to insert
-    real_size_population++; // increments the real_size_population
   }
+  m.unlock();
 
+  m.lock();
   // checks again...
   if (total_cost_child2 != -1 && !existsChromosome(child2)) {
     // add child in the population
     insertBinarySearch(child2,
                        total_cost_child2); // uses binary search to insert
-    real_size_population++; // increments the real_size_population
   }
+  m.unlock();
 }
 
 // runs the genetic algorithm
-void Genetic::run() {
+void Genetic_thread::run() {
   initialPopulation(); // gets initial population
 
   if (real_size_population == 0)
     return;
 
-  for (int i = 0; i < generations; i++) {
-    int old_size_population = real_size_population;
-
-    /* selects two parents (if exists) who will participate
-            of the reproduction process */
-    if (real_size_population >= 2) {
-      if (real_size_population == 2) {
-        // applying crossover in the parents
-        crossOver(population[0].first, population[1].first);
-      } else {
-        // real_size_population > 2
-
-        int parent1, parent2;
-
-        do {
-          // select two random parents
-          parent1 = rand() % real_size_population;
-          parent2 = rand() % real_size_population;
-        } while (parent1 == parent2);
-
-        // applying crossover in the two parents
-        crossOver(population[parent1].first, population[parent2].first);
-      }
-
-      // gets difference to check if the population grew
-      int diff_population = real_size_population - old_size_population;
-
-      if (diff_population == 2) {
-        if (real_size_population > size_population) {
-          // removes the two worst parents of the population
-          population.pop_back();
-          population.pop_back();
-
-          // decrements the real_size_population in 2 units
-          real_size_population -= 2;
-        }
-      } else if (diff_population == 1) {
-        if (real_size_population > size_population) {
-          population.pop_back();  // removes the worst parent of the population
-          real_size_population--; // decrements the real_size_population in the
-                                  // unit
-        }
-      }
-    } else // population contains only 1 parent
-    {
-      // applying crossover in the parent
-      crossOver(population[0].first, population[0].first);
-
-      if (real_size_population > size_population) {
-        population.pop_back();  // removes the worst parent of the population
-        real_size_population--; // decrements the real_size_population in the
-                                // unit
-      }
-    }
+  vector<thread> threads;
+  for (int i = 0; i < generations; i += thread_cnt) {
+    // TODO: single run
+    for (int j = 0; j < thread_cnt; ++j)
+      threads.push_back(thread(&Genetic_thread::single_run, this));
+    for (int j = 0; j < thread_cnt; ++j)
+      threads[j].join();
+    threads.clear();
+    removeBadGenes();
   }
 
   if (show_population == true)
@@ -385,8 +347,72 @@ void Genetic::run() {
   cout << " | Cost: " << population[0].second;
 }
 
-int Genetic::getCostBestSolution() {
+int Genetic_thread::getCostBestSolution() {
   if (real_size_population > 0)
     return population[0].second;
   return -1;
+}
+
+void Genetic_thread::removeBadGenes() {
+  while (real_size_population > size_population) {
+    population.pop_back();
+    real_size_population--;
+  }
+}
+
+void Genetic_thread::single_run(void) {
+  // TODO: solve population's race condition
+  int pop_sz = __sync_fetch_and_add(&real_size_population, 0);
+
+  /* selects two parents (if exists) who will participate
+                                  of the reproduction process */
+  if (pop_sz >= 2) {
+    if (pop_sz == 2) {
+      // applying crossover in the parents
+      crossOver(population[0].first, population[1].first);
+    } else {
+      // real_size_population > 2
+
+      int parent1, parent2;
+
+      do {
+        // select two random parents
+        parent1 = rand() % pop_sz;
+        parent2 = rand() % pop_sz;
+      } while (parent1 == parent2);
+
+      // applying crossover in the two parents
+      crossOver(population[parent1].first, population[parent2].first);
+    }
+
+    // // gets difference to check if the population grew
+    // int diff_population = real_size_population - old_size_population;
+
+    // if (diff_population == 2) {
+    // 	if (real_size_population > size_population) {
+    // 		// removes the two worst parents of the population
+    // 		population.pop_back();
+    // 		population.pop_back();
+
+    // 		// decrements the real_size_population in 2 units
+    // 		__sync_fetch_and_add(&real_size_population, -2);
+    // 	}
+    // } else if (diff_population == 1) {
+    // 	if (real_size_population > size_population) {
+    // 		population.pop_back();	// removes the worst parent of the
+    // population
+    // 		__sync_fetch_and_add(&real_size_population, -1);
+    // 	}
+    // }
+  } else // population contains only 1 parent
+  {
+    // // applying crossover in the parent
+    crossOver(population[0].first, population[0].first);
+
+    // if (real_size_population > size_population) {
+    // 	population.pop_back();	// removes the worst parent of the population
+    // 	__sync_fetch_and_add(&real_size_population, -1);
+    // }
+  }
+  return;
 }

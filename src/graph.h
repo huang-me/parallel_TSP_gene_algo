@@ -1,11 +1,11 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <utility>
-#include <map>
-#include <iostream>
-#include <vector>
 #include <algorithm> // random_shuffle
+#include <iostream>
+#include <map>
+#include <utility>
+#include <vector>
 
 // class that represents the graph
 class Graph {
@@ -22,6 +22,7 @@ public:
   void showInfoGraph();              // shows info of the graph
   int existsEdge(int src, int dest); // checks if exists a edge
   friend class Genetic;              // to access private membres this class
+  friend class Genetic_thread;       // to access private membres this class
 };
 
 #endif
