@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 			 << thread_num << " threads: "
        << (finish.tv_sec - start.tv_sec) +
               float(finish.tv_nsec - start.tv_nsec) / 1e9
-       << " seconds."; // shows time in seconds
+       << " seconds.\n"; // shows time in seconds
 
   return 0;
 }
