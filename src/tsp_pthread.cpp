@@ -2,6 +2,8 @@
 
 using namespace std;
 
+state *rand_st = new state;
+
 // constructor of Genetic
 Genetic_thread::Genetic_thread(Graph *g, int size_population, int generations,
                                int mutation_rate, int thread_num,
@@ -98,7 +100,7 @@ void Genetic_thread::initialPopulation() // generates the initial population
   for (int i = 0; i < generations; i++) {
     // generates a random permutation
     random_shuffle(parent.begin() + 1,
-                   parent.begin() + (rand() % (graph->V - 1) + 1));
+                   parent.begin() + (rand_st->myrand() % (graph->V - 1) + 1));
 
     int total_cost = isValidSolution(parent); // checks if solution is valid
 
@@ -190,8 +192,8 @@ void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
   }
 
   // generates random points
-  int point1 = rand() % (graph->V - 1) + 1;
-  int point2 = rand() % (graph->V - point1) + point1;
+  int point1 = rand_st->myrand() % (graph->V - 1) + 1;
+  int point2 = rand_st->myrand() % (graph->V - point1) + point1;
 
   // adjusts the points if they are equal
   if (point1 == point2) {
@@ -201,7 +203,7 @@ void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
       point2++;
     else {
       // point1 or point2 ?? random...
-      int point = rand() % 10 + 1; // number in the range 1 to 10
+      int point = rand_st->myrand() % 10 + 1; // number in the range 1 to 10
       if (point <= 5)
         point1--;
       else
@@ -275,14 +277,14 @@ void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
   }
 
   // mutation
-  int mutation = rand() % 100 + 1; // random number in [1,100]
+  int mutation = rand_st->myrand() % 100 + 1; // random number in [1,100]
   if (mutation <= mutation_rate) // checks if the random number <= mutation rate
   {
     // makes a mutation: change of two genes
 
     int index_gene1, index_gene2;
-    index_gene1 = rand() % (graph->V - 1) + 1;
-    index_gene2 = rand() % (graph->V - 1) + 1;
+    index_gene1 = rand_st->myrand() % (graph->V - 1) + 1;
+    index_gene2 = rand_st->myrand() % (graph->V - 1) + 1;
 
     // makes for child1
     int aux = child1[index_gene1];
@@ -376,8 +378,8 @@ void Genetic_thread::single_run(void) {
 
       do {
         // select two random parents
-        parent1 = rand() % pop_sz;
-        parent2 = rand() % pop_sz;
+        parent1 = rand_st->myrand() % pop_sz;
+        parent2 = rand_st->myrand() % pop_sz;
       } while (parent1 == parent2);
 
       // applying crossover in the two parents

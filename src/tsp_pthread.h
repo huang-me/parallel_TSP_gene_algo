@@ -4,11 +4,29 @@
 #include <mutex>
 #include <set>
 #include <thread>
-#include <vector>
+#include <time.h>
+#include <stdint.h>
 
 #include "graph.h"
-#include "lfqueue.h"
 #include "sort.h"
+
+class state {
+public:
+	uint32_t s = time(NULL);
+	uint32_t myrand() {
+		uint32_t x, old;
+
+		do {
+			x = old = s;
+			x ^= x << 13;
+			x ^= x >> 17;
+			x ^= x << 5;
+		} while(!__sync_bool_compare_and_swap(&s, old, x));
+
+		return x;
+	}
+};
+
 
 // class that represents genetic algorithm
 class Genetic_thread {
