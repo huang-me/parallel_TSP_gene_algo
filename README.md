@@ -1,15 +1,27 @@
 # Traveler salesman problem with multi-threaded genetic algorithm
 
 ## Tools
-```
-std::thread
-```
+- `std::thread`
+- `pybind11`
 
 ## Execution
 ```
-./main -t <number_of_threads> -n <number_of_nodes>
+./pytest.py
 ```
 
+## API
+- generate graph
+    ```
+    _graph.Graph(#_of_nodes, initial_vertex, random_graph)
+    ``` 
+- build environment according to the graph
+    ```
+    _Genetic.Genetic_thread(_graph.Graph, population_size, #_of_generations, mutation_rate, #_of_threads, show_population)
+    ```
+- run genetic algorithm
+    ```
+    _Genetic.Genetic_thread.run()
+    ```
+
 ## Result
-Solving TSP problem with 10 thread get about 3.5x speedup. Since we need to keep population always right, we need some mutex lock to keep operations work atomically, and hence the speedup is reasonable.
-![./main -t 12 -n 200](./images/result.png)
+![](./images/python_result.png)
