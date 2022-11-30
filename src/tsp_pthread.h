@@ -7,6 +7,10 @@
 #include <time.h>
 #include <stdint.h>
 
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/operators.h>
+
 #include "graph.h"
 #include "sort.h"
 
@@ -55,7 +59,7 @@ public:
                  std::vector<int> parent2); // makes the crossover
   void insertBinarySearch(std::vector<int> &child,
                           int total_cost); // uses binary search to insert
-  void run();                              // runs genetic algorithm
+  std::vector<int> run();                              // runs genetic algorithm
   int getCostBestSolution();               // returns cost of the best solution
   bool existsChromosome(
       const std::vector<int> &v); // checks if exists the chromosome

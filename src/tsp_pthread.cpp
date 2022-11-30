@@ -320,11 +320,11 @@ void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
 }
 
 // runs the genetic algorithm
-void Genetic_thread::run() {
+vector<int> Genetic_thread::run() {
   initialPopulation(); // gets initial population
 
   if (real_size_population == 0)
-    return;
+    return {};
 
   vector<thread> threads;
   for (int i = 0; i < generations; i += thread_cnt) {
@@ -340,12 +340,13 @@ void Genetic_thread::run() {
   if (show_population == true)
     showPopulation(); // shows the population
 
-  cout << "\nBest solution: ";
-  const vector<int> &vec = population[0].first;
-  for (int i = 0; i < graph->V; i++)
-    cout << vec[i] << " ";
-  cout << graph->initial_vertex;
-  cout << " | Cost: " << population[0].second;
+  // cout << "\nBest solution: ";
+  vector<int> vec = population[0].first;
+  // for (int i = 0; i < graph->V; i++)
+  //   cout << vec[i] << " ";
+  // cout << graph->initial_vertex;
+  // cout << " | Cost: " << population[0].second << endl;
+  return vec;
 }
 
 int Genetic_thread::getCostBestSolution() {
@@ -392,4 +393,13 @@ void Genetic_thread::single_run(void) {
     crossOver(population[0].first, population[0].first);
   }
   return;
+}
+
+PYBIND11_MODULE(_Genetic, t)
+{
+    t.doc() = "Multi-thread TSP solver with genetic algorithm";
+
+	pybind11::class_<Genetic_thread>(t, "Genetic_thread")
+		.def(pybind11::init<Graph*, int, int, int, int, bool>())
+		.def("run", &Genetic_thread::run);
 }

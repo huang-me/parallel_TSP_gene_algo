@@ -1,17 +1,20 @@
 CXX=g++
 CC=gcc
-FLAGS=-Wall -g -pthread
-OBJS=graph.o tsp.o tsp_pthread.o main.o
-HEADERS=graph.h tsp.h tsp_pthread.h
+PYINCLUDE = /usr/include/python3.8
+PYFLAGS = -lpython3.8
+PYBIND=`python3 -m pybind11 --includes`
+PYCONFIG=`python3-config --extension-suffix`
+FLAGS=-Wall -g -pthread -fPIC -shared
+LIBS=_graph _Genetic
 
-all: main
+all: $(LIBS)
 
-%.o: %.cpp $(HEADERS)
-	$(CXX) -o $@ $< -c $(FLAGS)
+_graph: graph.cpp graph.h
+	$(CXX) -I$(PYINCLUDE) $(PYBIND) $(FLAGS) $< -o $@$(PYCONFIG) $(PYFLAGS)
 
-main: $(OBJS) $(HEADERS)
-	$(CXX) -o $@ $(OBJS) $(FLAGS)
+_Genetic: tsp_pthread.cpp graph.cpp
+	$(CXX) -I$(PYINCLUDE) $(PYBIND) $(FLAGS) $^ -o $@$(PYCONFIG) $(PYFLAGS)
 
 .PHONY: clean
 clean:
-	rm -f main *.o
+	rm -f *.so
