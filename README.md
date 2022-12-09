@@ -11,5 +11,6 @@ std::thread
 ```
 
 ## Result
-Solving TSP problem with 12 thread get about 4x speedup. Since we need to keep population always right, we need some mutex lock to keep operations work atomically, and hence the speedup is reasonable.
-![./main -t 12 -n 200](./images/result.png)
+Solving TSP problem with 12 thread get about 5x speedup. Since we need to keep population always right, we need some mutex lock to keep operations work atomically, and hence the speedup is reasonable.
+![./main -t 12 -n 500](./images/result.png)
+> `./main -n 500 -t 12`
