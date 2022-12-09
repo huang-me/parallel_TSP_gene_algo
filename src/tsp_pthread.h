@@ -42,6 +42,7 @@ private:
   int real_size_population; // real size population
   int generations;          // amount of generations
   int mutation_rate;        // mutation rate
+  int bestCost;
   bool show_population;     // flag to show population
   void initialPopulation(); // generates the initial population
   int thread_cnt;
@@ -65,6 +66,7 @@ public:
       const std::vector<int> &v); // checks if exists the chromosome
   void single_run(void);
   void removeBadGenes();
+  int getBestCost();
 };
 
 #endif

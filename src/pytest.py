@@ -22,4 +22,5 @@ if __name__ == "__main__":
 	res = genetic.run();
 	correctness = test_correctness(res, nodenum)
 	assert correctness is True
+	print("Best Cost: {}".format(genetic.getBestCost()))
 	print("Done")

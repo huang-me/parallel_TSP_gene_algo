@@ -25,6 +25,7 @@ Genetic_thread::Genetic_thread(Graph *g, int size_population, int generations,
   this->mutation_rate = mutation_rate;
   this->show_population = show_population;
   this->thread_cnt = thread_num;
+  this->bestCost = INT_MAX;
 }
 
 // checks if is a valid solution, then return total cost of path else return -1
@@ -346,6 +347,7 @@ vector<int> Genetic_thread::run() {
   //   cout << vec[i] << " ";
   // cout << graph->initial_vertex;
   // cout << " | Cost: " << population[0].second << endl;
+  bestCost = population[0].second;
   return vec;
 }
 
@@ -395,11 +397,16 @@ void Genetic_thread::single_run(void) {
   return;
 }
 
+int Genetic_thread::getBestCost() {
+	return bestCost;
+}
+
 PYBIND11_MODULE(_Genetic, t)
 {
     t.doc() = "Multi-thread TSP solver with genetic algorithm";
 
 	pybind11::class_<Genetic_thread>(t, "Genetic_thread")
 		.def(pybind11::init<Graph*, int, int, int, int, bool>())
-		.def("run", &Genetic_thread::run);
+		.def("run", &Genetic_thread::run)
+		.def("getBestCost", &Genetic_thread::getBestCost);
 }
