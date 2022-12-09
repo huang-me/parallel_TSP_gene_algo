@@ -115,8 +115,6 @@ void Genetic_thread::initialPopulation() // generates the initial population
   // checks if real_size_population is 0
   if (real_size_population == 0)
     cout << "\nEmpty initial population ;( Try again runs the algorithm...";
-  else
-    sort(population.begin(), population.end(), sort_pred()); // sort population
 }
 
 void Genetic_thread::showPopulation() {
