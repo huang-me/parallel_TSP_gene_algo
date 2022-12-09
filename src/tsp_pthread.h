@@ -67,6 +67,7 @@ public:
   void single_run(void);
   void removeBadGenes();
   int getBestCost();
+  bool _findInitial(std::vector<int>&, int, std::vector<bool>&, int&);
 };
 
 #endif

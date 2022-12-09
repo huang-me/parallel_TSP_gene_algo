@@ -15,9 +15,9 @@ def test_correctness(arr, nodenum):
 	return True
 
 if __name__ == "__main__":
-	nodenum = 50
+	nodenum = 400
 	numthread = 4
-	g = _graph.Graph(nodenum, 0, True, "pytest.txt")
+	g = _graph.Graph(nodenum, 0, True)
 	genetic = _Genetic.Genetic_thread(g, 10, 10000, 5, numthread, False)
 	res = genetic.run();
 	correctness = test_correctness(res, nodenum)

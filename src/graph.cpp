@@ -24,7 +24,8 @@ Graph::Graph(int V, int initial_vertex,
 }
 
 Graph::~Graph() {
-	fclose(fp);
+	if(fp)
+		fclose(fp);
 }
 
 void Graph::generatesGraph() {
@@ -108,7 +109,7 @@ PYBIND11_MODULE(_graph, g)
     g.doc() = "TSP graph generation";
 
 	pybind11::class_<Graph>(g, "Graph")
-		.def(pybind11::init<int, int, bool, char*>());
+		.def(pybind11::init<int, int, bool>());
 
     g.def("generatesGraph", &Graph::generatesGraph);
 }
