@@ -19,6 +19,7 @@ private:
   bool show_population;     // flag to show population
 private:
   void initialPopulation(); // generates the initial population
+  bool _findInitial(std::vector<int>&, int, std::vector<bool>&, int&);
 public:
   Genetic(Graph *graph, int amount_population, int generations,
           int mutation_rate, bool show_population = true); // constructor

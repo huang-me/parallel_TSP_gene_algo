@@ -70,18 +70,33 @@ bool Genetic::existsChromosome(const vector<int> &v) {
   return false;
 }
 
+bool Genetic::_findInitial(vector<int> &arr, int curr, vector<bool> &visited, int &visitedNum) {
+	arr.push_back(curr);
+	visited[curr] = true;
+	visitedNum++;
+	if(visitedNum == graph->V)
+		return true;
+	for(int i=0; i<graph->V; ++i) {
+		if(visited[i]) continue;
+		if(graph->existsEdge(curr, i) != -1) {
+			if(_findInitial(arr, i, visited, visitedNum))
+				return true;
+		}
+	}
+	visited[curr] = false;
+	visitedNum--;
+	arr.pop_back();
+	return false;
+}
+
 void Genetic::initialPopulation() // generates the initial population
 {
   vector<int> parent;
 
-  // inserts initial vertex in the parent
-  parent.push_back(graph->initial_vertex);
-
   // creates the parent
-  for (int i = 0; i < graph->V; i++) {
-    if (i != graph->initial_vertex)
-      parent.push_back(i);
-  }
+  vector<bool> visited(graph->V, 0);
+  int visitedNum = 0;
+  _findInitial(parent, graph->initial_vertex, visited, visitedNum);
 
   int total_cost = isValidSolution(parent);
 
@@ -92,28 +107,9 @@ void Genetic::initialPopulation() // generates the initial population
     real_size_population++;             // increments real_size_population
   }
 
-  // makes random permutations "generations" times
-  for (int i = 0; i < generations; i++) {
-    // generates a random permutation
-    random_shuffle(parent.begin() + 1,
-                   parent.begin() + (rand() % (graph->V - 1) + 1));
-
-    int total_cost = isValidSolution(parent); // checks if solution is valid
-
-    // checks if permutation is a valid solution and if not exists
-    if (total_cost != -1 && !existsChromosome(parent)) {
-      population.push_back(make_pair(parent, total_cost)); // add in population
-      real_size_population++; // increments real_size_population in the unit
-    }
-    if (real_size_population == size_population) // checks size population
-      break;
-  }
-
   // checks if real_size_population is 0
   if (real_size_population == 0)
     cout << "\nEmpty initial population ;( Try again runs the algorithm...";
-  else
-    sort(population.begin(), population.end(), sort_pred()); // sort population
 }
 
 void Genetic::showPopulation() {

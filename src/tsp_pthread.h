@@ -40,6 +40,7 @@ private:
   int mutation_rate;        // mutation rate
   bool show_population;     // flag to show population
   void initialPopulation(); // generates the initial population
+  bool _findInitial(std::vector<int>&, int, std::vector<bool>&, int&);
   int thread_cnt;
   std::mutex m;
 
