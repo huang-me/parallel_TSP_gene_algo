@@ -296,23 +296,25 @@ void Genetic_thread::crossOver(vector<int> parent1, vector<int> parent2) {
   int total_cost_child1 = isValidSolution(child1);
   int total_cost_child2 = isValidSolution(child2);
 
-  m.lock();
-  // checks if is a valid solution and not exists in the population
-  if (total_cost_child1 != -1 && !existsChromosome(child1)) {
-    // add child in the population
-    insertBinarySearch(child1,
-                       total_cost_child1); // uses binary search to insert
+#pragma omp critical
+  {
+	  // checks if is a valid solution and not exists in the population
+	  if (total_cost_child1 != -1 && !existsChromosome(child1)) {
+		// add child in the population
+		insertBinarySearch(child1,
+						   total_cost_child1); // uses binary search to insert
+	  }
   }
-  m.unlock();
 
-  m.lock();
-  // checks again...
-  if (total_cost_child2 != -1 && !existsChromosome(child2)) {
-    // add child in the population
-    insertBinarySearch(child2,
-                       total_cost_child2); // uses binary search to insert
+#pragma omp critical
+  {
+	  // checks again...
+	  if (total_cost_child2 != -1 && !existsChromosome(child2)) {
+		// add child in the population
+		insertBinarySearch(child2,
+						   total_cost_child2); // uses binary search to insert
+	  }
   }
-  m.unlock();
 }
 
 // runs the genetic algorithm
@@ -322,15 +324,11 @@ void Genetic_thread::run() {
   if (real_size_population == 0)
     return;
 
-  vector<thread> threads;
-  for (int i = 0; i < generations; i += thread_cnt) {
+#pragma omp parallel for num_threads(thread_cnt)
+  for (int i = 0; i < generations; ++i) {
     // TODO: single run
-    for (int j = 0; j < thread_cnt; ++j)
-      threads.push_back(thread(&Genetic_thread::single_run, this));
-    for (int j = 0; j < thread_cnt; ++j)
-      threads[j].join();
-    threads.clear();
-    removeBadGenes();
+	single_run();
+	removeBadGenes();
   }
 
   if (show_population == true)
@@ -351,9 +349,12 @@ int Genetic_thread::getCostBestSolution() {
 }
 
 void Genetic_thread::removeBadGenes() {
-  while (real_size_population > size_population) {
-    population.pop_back();
-    real_size_population--;
+#pragma omp critical
+  {
+	  while (real_size_population > size_population) {
+		population.pop_back();
+		real_size_population--;
+	  }
   }
 }
 

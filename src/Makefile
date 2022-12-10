@@ -1,6 +1,6 @@
 CXX=g++
 CC=gcc
-FLAGS=-Wall -g -pthread
+FLAGS=-Wall -g -fopenmp
 OBJS=graph.o tsp.o tsp_pthread.o main.o
 HEADERS=graph.h tsp.h tsp_pthread.h
 

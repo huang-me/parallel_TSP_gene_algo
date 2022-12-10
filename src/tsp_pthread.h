@@ -6,6 +6,7 @@
 #include <thread>
 #include <time.h>
 #include <stdint.h>
+#include <omp.h>
 
 #include "graph.h"
 #include "sort.h"
